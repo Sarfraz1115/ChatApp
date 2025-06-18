@@ -2,6 +2,9 @@ import {create} from 'zustand';
 import toast from 'react-hot-toast';
 import {axiosInstance} from '../lib/axios';
 import {useAuthStore} from './useAuthStore';
+import {encryptMessage} from "../lib/encryption";
+const SECRET_KEY = "my_secret_key_123"; 
+
 
 
 export const useChatStore = create((set, get) => ({
@@ -10,7 +13,7 @@ export const useChatStore = create((set, get) => ({
     selectedUser: null,
     isUsersLoading: false,
     isMessagesLoading: false,
-
+    
 
     getUsers: async() => {
         set({isUsersLoading: true});
@@ -41,7 +44,9 @@ export const useChatStore = create((set, get) => ({
     sendMessage: async(messageData) => {
         const {selectedUser, messages} = get();
         try {
-            const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
+            const encryptedtext = encryptMessage(messageData.text);
+            const encryptedData = {...messageData, text: encryptedtext};
+            const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, encryptedData);
             set({messages: [...messages, res.data]})
         } catch (error) {
             toast.error(error.response.data.message);

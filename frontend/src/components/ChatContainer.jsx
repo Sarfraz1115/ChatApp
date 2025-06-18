@@ -6,6 +6,7 @@ import MessageInput from './MessageInput'
 import MessageSkeleton from './skeletons/MessageSkeleton'
 import { useAuthStore } from '../Store/useAuthStore';
 import { formatMessageTime } from '../lib/utils';
+import {decryptMessage} from '../lib/encryption';
 import { useRef } from 'react';
 
 
@@ -47,6 +48,7 @@ const ChatContainer = () => {
 
       <div className='flex-1 overflow-y-auto p-4 space-y-4'>
         {messages.map((message) => {
+          const decryptedtext = message.text ? decryptMessage(message.text) : '';
           return (
             <div key={message.id} className={`chat ${message.senderId === authUser._id ? 'chat-end' : 'chat-start'}`}
               ref={messageEndref}>
@@ -71,7 +73,7 @@ const ChatContainer = () => {
                     className="sm:max-w-[200px] rounded-md mb-2"
                   />
                 )}
-                {message.text && <p>{message.text}</p>}
+                {message.text && <p>{decryptedtext}</p>}
               </div>
             </div>
           )
